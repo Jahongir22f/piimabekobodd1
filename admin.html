@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора - Умная школа</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar admin-nav">
+        <div class="nav-brand">
+            <h2>🛠️ Админ панель</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="#" onclick="showAdminSection('dashboard')" class="nav-link active">Главная</a>
+            <a href="#" onclick="showAdminSection('chsb-manager')" class="nav-link">CHSB Manager</a>
+            <a href="#" onclick="showAdminSection('question-editor')" class="nav-link">Question Editor</a>
+            <a href="#" onclick="showAdminSection('media-manager')" class="nav-link">Media Manager</a>
+            <a href="#" onclick="showAdminSection('results')" class="nav-link">Results Monitor</a>
+            <a href="#" onclick="adminLogout()" class="nav-link logout">Выход</a>
+        </div>
+    </nav>
+
+    <!-- Главная панель админа -->
+    <section id="admin-dashboard" class="section active">
+        <div class="container">
+            <div class="admin-welcome glass-container">
+                <h2>Добро пожаловать в панель администратора</h2>
+                <p>Управление образовательной платформой</p>
+            </div>
+
+            <div class="admin-stats">
+                <div class="stat-card glass-container">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3 id="totalStudents">0</h3>
+                        <p>Зарегистрированных учеников</p>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-container">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <h3 id="totalQuestions">50</h3>
+                        <p>Вопросов в базе CHSB</p>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-container">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3 id="totalTests">0</h3>
+                        <p>Пройденных тестов</p>
+                    </div>
+                </div>
+
+                <div class="stat-card glass-container">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <h3 id="avgScore">0%</h3>
+                        <p>Средний балл</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions glass-container">
+                <h3>Быстрые действия</h3>
+                <div class="action-buttons">
+                    <button onclick="showAdminSection('question-editor')" class="btn-primary">
+                        📝 Редактировать вопросы
+                    </button>
+                    <button onclick="generateAccessCode()" class="btn-secondary">
+                        🔑 Сгенерировать код доступа
+                    </button>
+                    <button onclick="showAdminSection('results')" class="btn-info">
+                        📊 Посмотреть результаты
+                    </button>
+                </div>
+            </div>
+
+            <div class="access-code-display" id="accessCodeDisplay" style="display: none;">
+                <h4>Код доступа к тесту:</h4>
+                <div class="code-display">
+                    <span id="generatedCode"></span>
+                    <button onclick="copyCode()" class="btn-copy">Копировать</button>
+                </div>
+                <p class="code-info">Этот код действителен для запуска теста учениками</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHSB Manager -->
+    <section id="chsb-manager" class="section">
+        <div class="container">
+            <h2>📝 CHSB Test Manager</h2>
+            
+            <div class="chsb-controls">
+                <div class="filter-controls">
+                    <select id="subjectFilter" onchange="filterQuestions()">
+                        <option value="all">Все предметы</option>
+                        <option value="algebra">Алгебра (1-12)</option>
+                        <option value="geometry">Геометрия (13-20)</option>
+                        <option value="physics">Физика (21-36)</option>
+                        <option value="english">Английский (37-50)</option>
+                    </select>
+                    
+                    <button onclick="addNewQuestion()" class="btn-success">+ Добавить вопрос</button>
+                    <button onclick="exportQuestions()" class="btn-info">📥 Экспорт</button>
+                    <button onclick="importQuestions()" class="btn-warning">📤 Импорт</button>
+                </div>
+            </div>
+
+            <div class="questions-grid" id="questionsGrid">
+                <!-- Вопросы будут загружены динамически -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Question Editor -->
+    <section id="question-editor" class="section">
+        <div class="container">
+            <h2>✏️ Редактор вопросов</h2>
+            
+            <div class="editor-container">
+                <div class="question-list">
+                    <h3>Список вопросов</h3>
+                    <div class="search-box">
+                        <input type="text" id="questionSearch" placeholder="Поиск вопросов..." oninput="searchQuestions()">
+                    </div>
+                    <div class="questions-list" id="questionsList">
+                        <!-- Список вопросов -->
+                    </div>
+                </div>
+
+                <div class="question-form">
+                    <h3>Редактирование вопроса</h3>
+                    <form id="questionEditForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Номер вопроса</label>
+                                <input type="number" id="questionNumber" min="1" max="50" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Предмет</label>
+                                <select id="questionSubject" required>
+                                    <option value="algebra">Алгебра</option>
+                                    <option value="geometry">Геометрия</option>
+                                    <option value="physics">Физика</option>
+                                    <option value="english">Английский</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Текст вопроса</label>
+                            <textarea id="questionText" rows="3" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Формула (LaTeX или обычный текст)</label>
+                            <input type="text" id="questionFormula" placeholder="Например: 2x + 5 = 15">
+                        </div>
+
+                        <div class="answers-section">
+                            <h4>Варианты ответов</h4>
+                            <div class="form-group">
+                                <label>A)</label>
+                                <input type="text" id="optionA" required>
+                            </div>
+                            <div class="form-group">
+                                <label>B)</label>
+                                <input type="text" id="optionB" required>
+                            </div>
+                            <div class="form-group">
+                                <label>C)</label>
+                                <input type="text" id="optionC" required>
+                            </div>
+                            <div class="form-group">
+                                <label>D)</label>
+                                <input type="text" id="optionD" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Правильный ответ</label>
+                            <select id="correctAnswer" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Пояснение (необязательно)</label>
+                            <textarea id="questionExplanation" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Изображение</label>
+                            <input type="file" id="questionImage" accept="image/*" onchange="previewImage()">
+                            <div class="image-preview" id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Предварительный просмотр">
+                                <button type="button" onclick="removeImage()" class="btn-remove">Удалить</button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-success">Сохранить изменения</button>
+                            <button type="button" onclick="resetForm()" class="btn-secondary">Сбросить</button>
+                            <button type="button" onclick="deleteQuestion()" class="btn-danger">Удалить вопрос</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Media Manager -->
+    <section id="media-manager" class="section">
+        <div class="container">
+            <h2>🖼️ Менеджер медиа</h2>
+            
+            <div class="media-upload">
+                <div class="upload-area" onclick="document.getElementById('mediaUpload').click()">
+                    <div class="upload-icon">📁</div>
+                    <p>Нажмите для загрузки изображений</p>
+                    <input type="file" id="mediaUpload" multiple accept="image/*" style="display: none;" onchange="uploadMedia()">
+                </div>
+            </div>
+
+            <div class="media-gallery" id="mediaGallery">
+                <!-- Галерея изображений -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Monitor -->
+    <section id="results" class="section">
+        <div class="container">
+            <h2>📊 Мониторинг результатов</h2>
+            
+            <div class="results-filters">
+                <select id="studentFilter" onchange="filterResults()">
+                    <option value="all">Все ученики</option>
+                </select>
+                
+                <select id="dateFilter" onchange="filterResults()">
+                    <option value="all">Все даты</option>
+                    <option value="today">Сегодня</option>
+                    <option value="week">Эта неделя</option>
+                    <option value="month">Этот месяц</option>
+                </select>
+            </div>
+
+            <div class="results-table">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Ученик</th>
+                            <th>Класс</th>
+                            <th>Дата</th>
+                            <th>Общий балл</th>
+                            <th>Алгебра</th>
+                            <th>Геометрия</th>
+                            <th>Физика</th>
+                            <th>Английский</th>
+                            <th>Время</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Результаты будут загружены динамически -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="results-analytics">
+                <h3>Аналитика</h3>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Средний балл по предметам</h4>
+                        <div class="subject-analytics">
+                            <div class="subject-stat">
+                                <span>Алгебра:</span>
+                                <span id="avgAlgebra">0%</span>
+                            </div>
+                            <div class="subject-stat">
+                                <span>Геометрия:</span>
+                                <span id="avgGeometry">0%</span>
+                            </div>
+                            <div class="subject-stat">
+                                <span>Физика:</span>
+                                <span id="avgPhysics">0%</span>
+                            </div>
+                            <div class="subject-stat">
+                                <span>Английский:</span>
+                                <span id="avgEnglish">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h4>Статистика по классам</h4>
+                        <div id="classStats">
+                            <!-- Статистика по классам -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно подтверждения -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Подтверждение действия</h3>
+            <p id="confirmMessage"></p>
+            <div class="modal-buttons">
+                <button onclick="confirmAction()" class="btn-danger">Подтвердить</button>
+                <button onclick="closeModal()" class="btn-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

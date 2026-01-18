@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Smart School</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🎓 Smart School</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="#" onclick="showSection('dashboard')" class="nav-link active">Dashboard</a>
+            <a href="#" onclick="showSection('ai-tutor')" class="nav-link">AI Tutor</a>
+            <a href="#" onclick="showSection('chsb')" class="nav-link">CHSB Tests</a>
+            <a href="#" onclick="showSection('profile')" class="nav-link">Profile</a>
+            <a href="#" onclick="showSection('about')" class="nav-link">About</a>
+            <a href="#" onclick="logout()" class="nav-link logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <section id="dashboard" class="section active">
+        <div class="container">
+            <div class="welcome-card glass-container">
+                <h2>Welcome, <span id="studentName"></span>!</h2>
+                <p>Grade: <span id="studentClass"></span></p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card glass-container" onclick="showSection('ai-tutor')">
+                    <div class="card-icon">🤖</div>
+                    <h3>AI Tutor</h3>
+                    <p>Personal learning assistant</p>
+                </div>
+
+                <div class="dashboard-card glass-container" onclick="showSection('chsb')">
+                    <div class="card-icon">📝</div>
+                    <h3>CHSB Tests</h3>
+                    <p>50 levels across all subjects</p>
+                </div>
+
+                <div class="dashboard-card glass-container" onclick="showSection('profile')">
+                    <div class="card-icon">👤</div>
+                    <h3>Profile</h3>
+                    <p>Your achievements and statistics</p>
+                </div>
+
+                <div class="dashboard-card glass-container" onclick="showSection('about')">
+                    <div class="card-icon">ℹ️</div>
+                    <h3>About</h3>
+                    <p>Learn about the platform</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Tutor -->
+    <section id="ai-tutor" class="section">
+        <div class="container">
+            <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 600;">🤖 AI Tutor</h2>
+            
+            <div class="ai-chat glass-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="ai-message">
+                        <div class="message-content">
+                            Hello! I'm your AI tutor. What topic would you like to learn about today?
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="topicInput" placeholder="Enter a topic to learn..." onkeypress="handleEnter(event)">
+                    <button onclick="askAI()" class="btn-primary">Ask</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHSB Tests -->
+    <section id="chsb" class="section">
+        <div class="container">
+            <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 600;">📝 CHSB Testing System</h2>
+            
+            <div id="chsbMenu" class="chsb-menu glass-container">
+                <div class="test-info">
+                    <h3>50 Level Testing System</h3>
+                    <div class="subjects-grid">
+                        <div class="subject-card algebra-card">
+                            <h4>Algebra</h4>
+                            <p>Questions 1-12</p>
+                        </div>
+                        <div class="subject-card geometry-card">
+                            <h4>Geometry</h4>
+                            <p>Questions 13-20</p>
+                        </div>
+                        <div class="subject-card physics-card">
+                            <h4>Physics</h4>
+                            <p>Questions 21-36</p>
+                        </div>
+                        <div class="subject-card english-card">
+                            <h4>English</h4>
+                            <p>Questions 37-50</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-start">
+                    <div class="form-group">
+                        <input type="text" id="accessCode" placeholder="Enter access code" required>
+                    </div>
+                    <button onclick="startTest()" class="btn-primary btn-large">Start Test</button>
+                    <div id="codeError" class="error-message"></div>
+                </div>
+            </div>
+
+            <!-- Test Interface -->
+            <div id="testInterface" class="test-interface glass-container" style="display: none;">
+                <div class="test-layout">
+                    <!-- Question Navigation Panel -->
+                    <div class="question-nav-panel">
+                        <h4>Question Navigation</h4>
+                        <div class="subjects-nav">
+                            <div class="subject-nav algebra-nav">
+                                <h5>Algebra (1-12)</h5>
+                                <div class="question-grid" id="algebraGrid"></div>
+                            </div>
+                            <div class="subject-nav geometry-nav">
+                                <h5>Geometry (13-20)</h5>
+                                <div class="question-grid" id="geometryGrid"></div>
+                            </div>
+                            <div class="subject-nav physics-nav">
+                                <h5>Physics (21-36)</h5>
+                                <div class="question-grid" id="physicsGrid"></div>
+                            </div>
+                            <div class="subject-nav english-nav">
+                                <h5>English (37-50)</h5>
+                                <div class="question-grid" id="englishGrid"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Test Area -->
+                    <div class="test-main-area">
+                        <div class="test-header">
+                            <div class="test-progress">
+                                <span>Question <span id="currentQuestion">1</span> of 50</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                            </div>
+                            <div class="test-timer">
+                                Time: <span id="timer">90:00</span>
+                            </div>
+                        </div>
+
+                        <div class="question-container">
+                            <div class="question-number">Question <span id="questionNumber">1</span></div>
+                            <div class="question-subject" id="questionSubject">Algebra</div>
+                            <div class="question-text" id="questionText"></div>
+                            <div class="question-image" id="questionImage" style="display: none;">
+                                <img id="questionImg" src="" alt="Question image">
+                            </div>
+                            
+                            <div class="answers-container">
+                                <div class="answer-option" onclick="selectAnswer('A')">
+                                    <input type="radio" name="answer" value="A" id="answerA">
+                                    <label for="answerA">A) <span id="optionA"></span></label>
+                                </div>
+                                <div class="answer-option" onclick="selectAnswer('B')">
+                                    <input type="radio" name="answer" value="B" id="answerB">
+                                    <label for="answerB">B) <span id="optionB"></span></label>
+                                </div>
+                                <div class="answer-option" onclick="selectAnswer('C')">
+                                    <input type="radio" name="answer" value="C" id="answerC">
+                                    <label for="answerC">C) <span id="optionC"></span></label>
+                                </div>
+                                <div class="answer-option" onclick="selectAnswer('D')">
+                                    <input type="radio" name="answer" value="D" id="answerD">
+                                    <label for="answerD">D) <span id="optionD"></span></label>
+                                </div>
+                            </div>
+
+                            <div class="test-controls">
+                                <button onclick="previousQuestion()" id="prevBtn" class="btn-secondary" disabled>Previous</button>
+                                <button onclick="nextQuestion()" id="nextBtn" class="btn-primary">Next</button>
+                                <button onclick="finishTest()" id="finishBtn" class="btn-success" style="display: none;">Finish Test</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div id="testResults" class="test-results glass-container" style="display: none;">
+                <h3>CHSB Test Results</h3>
+                <div class="results-summary">
+                    <div class="total-score">
+                        <h4>Total Score: <span id="totalScore">0</span> / 50</h4>
+                        <div class="score-percentage" id="scorePercentage">0%</div>
+                    </div>
+                </div>
+
+                <div class="subject-results">
+                    <div class="subject-result">
+                        <h5>Algebra</h5>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="algebraProgress"></div>
+                        </div>
+                        <span id="algebraScore">0/12</span>
+                    </div>
+                    <div class="subject-result">
+                        <h5>Geometry</h5>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="geometryProgress"></div>
+                        </div>
+                        <span id="geometryScore">0/8</span>
+                    </div>
+                    <div class="subject-result">
+                        <h5>Physics</h5>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="physicsProgress"></div>
+                        </div>
+                        <span id="physicsScore">0/16</span>
+                    </div>
+                    <div class="subject-result">
+                        <h5>English</h5>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="englishProgress"></div>
+                        </div>
+                        <span id="englishScore">0/14</span>
+                    </div>
+                </div>
+
+                <div class="ai-recommendations">
+                    <h4>AI Recommendations</h4>
+                    <div id="aiRecommendations"></div>
+                </div>
+
+                <button onclick="resetTest()" class="btn-primary">Take Test Again</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile -->
+    <section id="profile" class="section">
+        <div class="container">
+            <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 600;">👤 Student Profile</h2>
+            
+            <div class="profile-info">
+                <div class="profile-card glass-container">
+                    <h3>Personal Information</h3>
+                    <p><strong>First Name:</strong> <span id="profileName"></span></p>
+                    <p><strong>Last Name:</strong> <span id="profileLastName"></span></p>
+                    <p><strong>Grade:</strong> <span id="profileClass"></span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                </div>
+
+                <div class="achievements glass-container">
+                    <h3>Achievements</h3>
+                    <div id="achievementsList">
+                        <!-- Achievements will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2rem; font-weight: 600;">ℹ️ About the Platform</h2>
+            
+            <div class="about-content">
+                <div class="feature-card glass-container">
+                    <h3>🤖 AI Tutor</h3>
+                    <p>Personal assistant that explains complex topics in simple language, provides examples and helps with learning.</p>
+                </div>
+
+                <div class="feature-card glass-container">
+                    <h3>📝 CHSB System</h3>
+                    <p>Comprehensive testing system across 4 subjects with 50 difficulty levels and detailed analytics.</p>
+                </div>
+
+                <div class="tech-info glass-container">
+                    <h3>Technologies</h3>
+                    <p>Platform built with modern web technologies: HTML5, CSS3, JavaScript ES6+, LocalStorage for data storage.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Violation Modal -->
+    <div id="violationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>⚠️ Suspicious Activity</h3>
+            <p>Detected exit from fullscreen mode or loss of focus.</p>
+            <p>Return to fullscreen mode or enter administrator code:</p>
+            
+            <div class="form-group">
+                <input type="password" id="adminCode" placeholder="Administrator code">
+            </div>
+            
+            <div class="modal-buttons">
+                <button onclick="returnToFullscreen()" class="btn-primary">Return to Fullscreen</button>
+                <button onclick="checkAdminCode()" class="btn-secondary">Check Code</button>
+            </div>
+            
+            <div id="violationError" class="error-message"></div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/student.js"></script>
+</body>
+</html>
